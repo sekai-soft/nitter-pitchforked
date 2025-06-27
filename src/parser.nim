@@ -260,7 +260,9 @@ proc parseTweet(js: JsonNode; jsCard: JsonNode = newJNull()): Tweet =
       of "photo":
         result.photos.add m{"media_url_https"}.getImageStr
       of "video":
-        result.video = some(parseVideo(m))
+        let parsedVideo = parseVideo(m)
+        result.video = some(parsedVideo)
+        result.videos.add parsedVideo
         with user, m{"additional_media_info", "source_user"}:
           if user{"id"}.getInt > 0:
             result.attribution = some(parseUser(user))

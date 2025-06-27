@@ -214,6 +214,7 @@ type
     gif*: Option[Gif]
     video*: Option[Video]
     photos*: seq[string]
+    videos*: seq[Video]
 
   Tweets* = seq[Tweet]
 
