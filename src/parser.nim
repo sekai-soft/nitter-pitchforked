@@ -141,7 +141,9 @@ proc parseLegacyMediaEntities(js: JsonNode; result: var Tweet) =
       of "photo":
         result.photos.add m{"media_url_https"}.getImageStr
       of "video":
-        result.video = some(parseVideo(m))
+        let parsedVideo = parseVideo(m)
+        result.video = some(parsedVideo)
+        result.videos.add parsedVideo
         with user, m{"additional_media_info", "source_user"}:
           if user{"id"}.getInt > 0:
             result.attribution = some(parseUser(user))
@@ -168,12 +170,14 @@ proc parseMediaEntities(js: JsonNode; result: var Tweet) =
           result.photos.add mediaInfo{"original_img_url"}.getImageStr
         of "ApiVideo":
           let status = mediaEntity{"media_results", "result", "media_availability_v2", "status"}
-          result.video = some Video(
+          let parsedVideo = Video(
             available: status.getStr == "Available",
             thumb: mediaInfo{"preview_image", "original_img_url"}.getImageStr,
             durationMs: mediaInfo{"duration_millis"}.getInt,
             variants: parseVideoVariants(mediaInfo{"variants"})
           )
+          result.video = some parsedVideo
+          result.videos.add parsedVideo
         of "ApiGif":
           result.gif = some Gif(
             url: mediaInfo{"variants"}[0]{"url"}.getImageStr,
