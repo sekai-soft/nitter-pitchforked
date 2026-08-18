@@ -22,7 +22,7 @@ proc createPrefRouter*(cfg: Config) =
         prefs = requestPrefs()
         prefsCode = encodePrefs(prefs)
         prefsUrl = getUrlPrefix(cfg) & "/?prefs=" & prefsCode
-        html = renderPreferences(prefs, refPath(), findThemes(cfg.staticDir), prefsUrl)
+        html = renderPreferences(prefs, refPath(), findThemes(cfg.staticDir), prefsUrl, cfg.hostname, cfg.useHttps)
       resp renderMain(html, request, cfg, prefs, "Preferences")
 
     get "/settings/@i?":
