@@ -6,6 +6,9 @@ on:
       - "README.md"
     branches:
       - master
+  release:
+    types:
+      - published
 
 concurrency:
   group: docker-publish-${{ github.ref }}
