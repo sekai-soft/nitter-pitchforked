@@ -32,14 +32,76 @@ macro renderPrefs*(): untyped =
 
       result[2].add stmt
 
+let openNitterRssUrlJs = """
+javascript:(function() {
+  const url = window.location.href;
+  if (!url.startsWith("https://x.com")) {
+    alert("This is not a Twitter page");
+    return
+  }
+  const rssUrl = `HTTP_OR_S://HOSTNAME${url.slice("https://x.com".length)}/rss`;
+  window.open(rssUrl, '_blank').focus();
+})();
+"""
+
+let subscribeNitterRssToMinifluxJs = """
+javascript:(function() {
+  const url = window.location.href;
+  if (!url.startsWith("https://x.com")) {
+    alert("This is not a Twitter page");
+    return
+  }
+  const rssUrl = `HTTP_OR_S://HOSTNAME${url.slice("https://x.com".length)}/rss`;
+  const minifluxUrl = `https://MINIFLUX_HOSTNAME/bookmarklet?uri=${encodeURIComponent(rssUrl)}`;
+  window.open(minifluxUrl, '_blank').focus();
+})();
+"""
+
+let subscribeNitterRssToInoreaderJs = """
+javascript:(function() {
+  const url = window.location.href;
+  if (!url.startsWith("https://x.com")) {
+    alert("This is not a Twitter page");
+    return
+  }
+  const rssUrl = `HTTP_OR_S://HOSTNAME${url.slice("https://x.com".length)}/rss`;
+  const inoreaderUrl = `https://www.inoreader.com/search/feeds/${encodeURIComponent(rssUrl)}`;
+  window.open(inoreaderUrl, '_blank').focus();
+})();
+"""
+
 proc renderPreferences*(prefs: Prefs; path: string; themes: seq[string];
-                        prefsUrl: string): VNode =
+                        prefsUrl: string; hostname: string; useHttps: bool): VNode =
   buildHtml(tdiv(class="overlay-panel")):
     fieldset(class="preferences"):
       form(`method`="post", action="/saveprefs", autocomplete="off"):
         refererField path
 
         renderPrefs()
+
+        legend:
+          text "Bookmarklets (drag them to bookmark bar)"
+
+        if prefs.minifluxHostname.len > 0:
+          a(href=subscribeNitterRssToMinifluxJs
+            .replace("MINIFLUX_HOSTNAME", prefs.minifluxHostname)
+            .replace("HTTP_OR_S", if useHttps: "https" else: "http")
+            .replace("HOSTNAME", hostname)):
+            text "Subscribe Nitter RSS to Miniflux"
+
+          br()
+
+        a(href=subscribeNitterRssToInoreaderJs
+          .replace("HTTP_OR_S", if useHttps: "https" else: "http")
+          .replace("HOSTNAME", hostname)):
+          text "Subscribe Nitter RSS to Inoreader"
+
+        br()
+
+        a(href=openNitterRssUrlJs
+          .replace("HTTP_OR_S", if useHttps: "https" else: "http")
+          .replace("HOSTNAME", hostname)):
+          text "Open Nitter RSS URL"
 
         legend: text "Bookmark"
         p(class="bookmark-note"):
