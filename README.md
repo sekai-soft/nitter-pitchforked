@@ -70,6 +70,3 @@ nimble -l md
 ```bash
 redis-cli flushall
 ```
-
-Set your hostname, port, HMAC key, https (must be correct for cookies), and
-Redis info in `nitter.conf`. Run Nitter by executing `./nitter`.
